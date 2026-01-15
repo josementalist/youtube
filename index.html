@@ -3,343 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Video Search</title>
+  <title>YouTube</title>
 
   <style>
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #0f0f10;
-      color: #fff;
+      background: #ffffff;
+      color: #0f0f0f;
     }
 
     .wrap {
-      width: min(900px, 92vw);
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 16px;
       text-align: center;
-      padding: 28px 0 48px;
     }
 
+    /* Logo */
     .logo {
-      width: 140px;
-      max-width: 55vw;
-      margin-bottom: 18px;
+      width: 160px;
+      margin-bottom: 24px;
       user-select: none;
     }
 
-    /* Search container */
-    .suggest {
-      position: relative;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    .bar {
+    /* Search bar */
+    .search-bar {
+      max-width: 640px;
+      margin: 0 auto 32px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: #fff;
-      color: #111;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      border: 1px solid #d3d3d3;
+      border-radius: 24px;
+      padding: 10px 16px;
     }
 
-    .icon {
-      width: 18px;
-      height: 18px;
-      opacity: .55;
-      flex: 0 0 auto;
-    }
-
-    input {
-      border: 0;
+    .search-bar input {
+      border: none;
       outline: none;
       width: 100%;
-      font-size: 18px;
-      padding: 6px 0;
-      background: transparent;
-    }
-
-    /* Suggestions dropdown */
-    .suggest-list {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: calc(100% + 8px);
-      background: #fff;
-      color: #111;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      overflow: hidden;
-      display: none;
-      z-index: 50;
-    }
-
-    .suggest-item {
-      padding: 12px 14px;
-      text-align: left;
-      font-size: 15px;
-      cursor: pointer;
-      border-top: 1px solid rgba(0,0,0,0.06);
-      user-select: none;
-    }
-
-    .suggest-item:first-child { border-top: 0; }
-    .suggest-item:hover { background: #f3f4f6; }
-    .suggest-item.active { background: #eef2ff; }
-
-    .suggest-muted {
-      color: #666;
-      font-size: 12px;
-      padding: 8px 14px;
-      border-top: 1px solid rgba(0,0,0,0.06);
-      background: #fafafa;
-      text-align: left;
+      font-size: 16px;
     }
 
     /* Thumbnails grid */
-    .thumbs {
-      margin-top: 26px;
+    .videos {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
     }
 
-    .card {
-      background: #181818;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    .video {
+      text-align: left;
+      cursor: pointer;
     }
 
-    .card img {
+    .thumb {
       width: 100%;
-      display: block;
       aspect-ratio: 16 / 9;
+      background: #e5e5e5;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
 
-    .card .title {
-      padding: 10px 12px;
-      font-size: 13px;
-      color: #e6e6e6;
-      text-align: left;
-      line-height: 1.25;
+    .title {
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.3;
     }
 
-    .foot {
-      margin-top: 22px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.55);
+    .meta {
+      font-size: 13px;
+      color: #606060;
+      margin-top: 4px;
     }
   </style>
 </head>
 
 <body>
   <main class="wrap">
-    <!-- Replace with your own logo file in repo root -->
-    <img src="youtube-logo.png" alt="Video Search" class="logo" />
 
-    <form id="searchForm" autocomplete="off">
-      <div class="suggest">
-        <div class="bar">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor"
-              d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
-          </svg>
-          <input id="query" type="text" placeholder="Search videos…" required />
-        </div>
+    <!-- LOGO -->
+    <img src="youtube-logo.png" alt="YouTube" class="logo" />
 
-        <div id="suggestList" class="suggest-list"></div>
-      </div>
+    <!-- SEARCH -->
+    <form id="searchForm" class="search-bar">
+      <input id="query" type="text" placeholder="Search" autocomplete="off" />
     </form>
 
-    <!-- Visual thumbnails (for vibe/credibility) -->
-    <section class="thumbs" aria-label="Trending videos">
-      <div class="card">
-        <img src="https://picsum.photos/640/360?random=11" alt="Trending thumbnail 1">
-        <div class="title">Top 10 unbelievable moments</div>
+    <!-- THUMBNAILS -->
+    <section class="videos">
+      <!-- Row 1 -->
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?1"></div>
+        <div class="title">Amazing Street Magic That Will Blow Your Mind</div>
+        <div class="meta">1.2M views • 2 days ago</div>
       </div>
-      <div class="card">
-        <img src="https://picsum.photos/640/360?random=12" alt="Trending thumbnail 2">
-        <div class="title">A story nobody expected…</div>
+
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?2"></div>
+        <div class="title">Mentalist Predicts Audience Thought</div>
+        <div class="meta">980K views • 1 week ago</div>
       </div>
-      <div class="card">
-        <img src="https://picsum.photos/640/360?random=13" alt="Trending thumbnail 3">
-        <div class="title">Mindset shift in 5 minutes</div>
+
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?3"></div>
+        <div class="title">Impossible Phone Mind Reading Trick</div>
+        <div class="meta">2.4M views • 3 weeks ago</div>
       </div>
-      <div class="card">
-        <img src="https://picsum.photos/640/360?random=14" alt="Trending thumbnail 4">
-        <div class="title">Hidden psychology tricks</div>
+
+      <!-- Row 2 -->
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?4"></div>
+        <div class="title">He Knew What I Was Thinking 😱</div>
+        <div class="meta">640K views • 4 days ago</div>
+      </div>
+
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?5"></div>
+        <div class="title">This Trick Fooled Everyone</div>
+        <div class="meta">3.1M views • 1 month ago</div>
+      </div>
+
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?6"></div>
+        <div class="title">Mind Reading Using a Phone</div>
+        <div class="meta">820K views • 2 weeks ago</div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?7"></div>
+        <div class="title">Mentalism Explained (Or Is It?)</div>
+        <div class="meta">510K views • 5 days ago</div>
+      </div>
+
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?8"></div>
+        <div class="title">Audience Thought Revealed Live</div>
+        <div class="meta">1.8M views • 6 days ago</div>
+      </div>
+
+      <div class="video">
+        <div class="thumb"><img src="https://picsum.photos/640/360?9"></div>
+        <div class="title">Phone Tap Mind Reading Experiment</div>
+        <div class="meta">2M views • 1 month ago</div>
       </div>
     </section>
 
-    <div class="foot">Opens results on YouTube</div>
   </main>
 
   <script>
-    // --- Suggestions (edit to match your show vibe) ---
-    const BASE_SUGGESTIONS = [
-      "best motivational speech",
-      "hidden psychology tricks",
-      "mind reading demonstration",
-      "how to improve memory",
-      "most relaxing music",
-      "kerala travel vlog",
-      "top 10 unbelievable moments",
-      "amazing magic trick tutorial",
-      "how to build confidence",
-      "public speaking tips",
-      "incredible talent show",
-      "mystery stories in malayalam"
-    ];
-
-    const form = document.getElementById("searchForm");
-    const qEl = document.getElementById("query");
-    const suggestList = document.getElementById("suggestList");
-
-    let activeIndex = -1;
-    let currentItems = [];
-
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
-    }
-
-    // Optional: recent searches (same device only)
-    function getRecents() {
-      try { return JSON.parse(localStorage.getItem("recent_video_searches") || "[]"); }
-      catch { return []; }
-    }
-
-    function addRecent(q) {
-      const rec = getRecents();
-      const cleaned = q.trim();
-      if (!cleaned) return;
-      const next = [cleaned, ...rec.filter(x => x !== cleaned)].slice(0, 6);
-      localStorage.setItem("recent_video_searches", JSON.stringify(next));
-    }
-
-    function showSuggestions(items, label) {
-      currentItems = items;
-      activeIndex = -1;
-
-      if (!items.length) {
-        hideSuggestions();
-        return;
-      }
-
-      const rows = items.map((s, i) =>
-        `<div class="suggest-item" data-i="${i}">${escapeHtml(s)}</div>`
-      ).join("");
-
-      const footer = label
-        ? `<div class="suggest-muted">${escapeHtml(label)}</div>`
-        : "";
-
-      suggestList.innerHTML = rows + footer;
-      suggestList.style.display = "block";
-    }
-
-    function hideSuggestions() {
-      suggestList.style.display = "none";
-      suggestList.innerHTML = "";
-      currentItems = [];
-      activeIndex = -1;
-    }
-
-    function updateSuggestions() {
-      const q = qEl.value.trim().toLowerCase();
-
-      if (!q) {
-        const rec = getRecents();
-        if (rec.length) showSuggestions(rec, "Recent searches");
-        else showSuggestions(BASE_SUGGESTIONS.slice(0, 7), "Suggestions");
-        return;
-      }
-
-      const rec = getRecents().filter(s => s.toLowerCase().includes(q));
-      const base = BASE_SUGGESTIONS.filter(s => s.toLowerCase().includes(q));
-      const merged = [...rec, ...base.filter(b => !rec.includes(b))].slice(0, 7);
-
-      showSuggestions(merged, "Suggestions");
-    }
-
-    function commitSearch(q) {
-      const cleaned = q.trim();
-      if (!cleaned) return;
-
-      addRecent(cleaned);
-
-      window.location.href =
-        "https://www.youtube.com/results?search_query=" + encodeURIComponent(cleaned);
-    }
-
-    // Click to pick suggestion
-    suggestList.addEventListener("click", (e) => {
-      const item = e.target.closest(".suggest-item");
-      if (!item) return;
-      const i = Number(item.getAttribute("data-i"));
-      const val = currentItems[i];
-      qEl.value = val;
-      hideSuggestions();
-      commitSearch(val);
-    });
-
-    // Keyboard navigation: ↑ ↓ Enter Esc
-    qEl.addEventListener("keydown", (e) => {
-      if (suggestList.style.display !== "block" || !currentItems.length) return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        activeIndex = Math.min(activeIndex + 1, currentItems.length - 1);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        activeIndex = Math.max(activeIndex - 1, 0);
-      } else if (e.key === "Enter") {
-        if (activeIndex >= 0 && currentItems[activeIndex]) {
-          e.preventDefault();
-          const picked = currentItems[activeIndex];
-          qEl.value = picked;
-          hideSuggestions();
-          commitSearch(picked);
-        }
-        return;
-      } else if (e.key === "Escape") {
-        hideSuggestions();
-        return;
-      }
-
-      [...suggestList.querySelectorAll(".suggest-item")].forEach((el, idx) => {
-        el.classList.toggle("active", idx === activeIndex);
-      });
-    });
-
-    // Update suggestions as you type
-    qEl.addEventListener("input", updateSuggestions);
-    qEl.addEventListener("focus", updateSuggestions);
-
-    // Hide dropdown when clicking outside
-    document.addEventListener("click", (e) => {
-      const inside = suggestList.contains(e.target) || qEl.contains(e.target);
-      if (!inside) hideSuggestions();
-    });
-
-    // Submit behavior
-    form.addEventListener("submit", (e) => {
+    document.getElementById("searchForm").addEventListener("submit", e => {
       e.preventDefault();
-      hideSuggestions();
-      commitSearch(qEl.value);
-    });
+      const q = document.getElementById("query").value.trim();
+      if (!q) return;
 
-    setTimeout(() => qEl.focus(), 200);
+      // Redirect to real YouTube results
+      window.location.href =
+        "https://www.youtube.com/results?search_query=" +
+        encodeURIComponent(q);
+    });
   </script>
 </body>
 </html>
