@@ -1,471 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>YouTube</title>
 
-  <style>
-    :root {
-      --bg: #ffffff;
-      --text: #0f0f0f;
-      --muted: #606060;
-      --chip: #f2f2f2;
-      --chipActive: #0f0f0f;
-      --chipActiveText: #ffffff;
-      --border: #e6e6e6;
-      --shadow: 0 2px 10px rgba(0,0,0,.08);
-      --ytRed: #ff0000;
-    }
+<style>
+  :root{
+    --ytRed:#ff0000;
+    --border:#e6e6e6;
+    --chip:#f2f2f2;
+    --text:#0f0f0f;
+    --muted:#606060;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:#fff;
+    color:var(--text);
+  }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+  /* ===== TOP ===== */
+  .top{
+    position:sticky;
+    top:0;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    z-index:10;
+  }
+  .topRow{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 12px;
+  }
+  .brand img{
+    height:34px; /* bigger logo */
+  }
+  .searchWrap{flex:1;}
+  .searchBar{
+    background:#f6f6f6;
+    border-radius:999px;
+    padding:10px 14px;
+  }
+  .searchBar input{
+    width:100%;
+    border:0;
+    outline:none;
+    font-size:15px;
+    background:transparent;
+  }
 
-    /* ===== Top bar ===== */
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
+  /* ===== CHIPS ===== */
+  .chipsRow{
+    display:flex;
+    gap:10px;
+    padding:10px 12px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .chip{
+    padding:8px 14px;
+    border-radius:999px;
+    background:var(--chip);
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .chip.active{
+    background:#000;
+    color:#fff;
+  }
 
-    .topRow {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-    }
+  /* ===== PAGE ===== */
+  .page{
+    max-width:900px;
+    margin:auto;
+    padding:10px 12px 22px;
+  }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 120px;
-    }
+  /* ===== MAIN VIDEO ===== */
+  .mainThumb{
+    width:100%;
+    border-radius:14px;
+    overflow:hidden;
+    position:relative;
+    background:#eee;
+  }
+  .mainThumb img{
+    width:100%;
+    display:block;
+    height:auto;
+  }
+  .duration{
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    background:rgba(0,0,0,.75);
+    color:#fff;
+    font-size:12px;
+    padding:4px 6px;
+    border-radius:6px;
+  }
+  .meta{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+    align-items:flex-start;
+  }
+  .avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:#ddd;
+    flex:0 0 auto;
+  }
+  .title{
+    font-weight:600;
+    line-height:1.25;
+  }
+  .sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
 
-    .brand img {
-      height: 22px;
-      width: auto;
-      display: block;
-    }
+  /* ===== SHORTS ===== */
+  .shortsHeader{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:18px 0 10px;
+    font-weight:700;
+    font-size:18px;
+  }
+  .shortsHeader .red{
+    color:var(--ytRed);
+    font-size:20px;
+    line-height:1;
+  }
+  .shortsGrid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+  .short{
+    position:relative;
+    border-radius:14px;
+    overflow:hidden;
+    aspect-ratio:9/16;
+    background:#eee;
+  }
+  .short img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .views{
+    position:absolute;
+    top:8px;
+    left:8px;
+    background:rgba(0,0,0,.6);
+    color:#fff;
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:999px;
+  }
 
-    .searchWrap {
-      flex: 1;
-      position: relative;
-      min-width: 0;
-    }
-
-    .searchBar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #f6f6f6;
-      border: 1px solid #efefef;
-      border-radius: 999px;
-      padding: 10px 12px;
-    }
-
-    .searchIcon {
-      width: 18px; height: 18px;
-      opacity: .65;
-      flex: 0 0 auto;
-    }
-
-    input[type="text"]{
-      border: 0;
-      outline: none;
-      width: 100%;
-      font-size: 15px;
-      background: transparent;
-    }
-
-    .rightIcon {
-      width: 22px; height: 22px;
-      display: grid;
-      place-items: center;
-      opacity: .8;
-      flex: 0 0 auto;
-    }
-
-    /* Suggestions dropdown */
-    .suggestBox {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: calc(100% + 8px);
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      display: none; /* shown only when typing */
-    }
-
-    .suggestItem {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      cursor: pointer;
-      border-top: 1px solid #f2f2f2;
-    }
-    .suggestItem:first-child { border-top: 0; }
-    .suggestItem:hover { background: #fafafa; }
-    .suggestItem svg { width: 16px; height: 16px; opacity: .6; }
-    .suggestItem span { font-size: 14px; }
-
-    /* ===== Chips menu ===== */
-    .chipsRow {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px 12px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .chipsRow::-webkit-scrollbar { display: none; }
-
-    .chip {
-      white-space: nowrap;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: var(--chip);
-      border: 1px solid #ededed;
-      font-size: 13px;
-      color: var(--text);
-      cursor: pointer;
-      user-select: none;
-    }
-    .chip.active {
-      background: var(--chipActive);
-      color: var(--chipActiveText);
-      border-color: var(--chipActive);
-    }
-
-    /* ===== Main feed ===== */
-    .page {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 10px 12px 24px;
-    }
-
-    .card {
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .thumb16x9 {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 14px;
-      overflow: hidden;
-      position: relative;
-      background:
-        linear-gradient(135deg, rgba(0,0,0,.05), rgba(0,0,0,.02)),
-        radial-gradient(circle at 30% 30%, rgba(255,0,0,.10), transparent 55%),
-        radial-gradient(circle at 70% 60%, rgba(0,0,0,.08), transparent 60%);
-    }
-
-    .duration {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      font-size: 12px;
-      background: rgba(0,0,0,.75);
-      color: #fff;
-      padding: 4px 6px;
-      border-radius: 6px;
-      letter-spacing: .2px;
-    }
-
-    .meta {
-      display: grid;
-      grid-template-columns: 42px 1fr;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #ddd, #f5f5f5);
-      border: 1px solid #eee;
-      margin-top: 2px;
-    }
-
-    .titleLine {
-      font-weight: 650;
-      line-height: 1.25;
-      font-size: 15px;
-      margin: 0;
-    }
-
-    .subLine {
-      color: var(--muted);
-      font-size: 12.5px;
-      margin-top: 4px;
-    }
-
-    /* ===== Shorts ===== */
-    .shortsHeader {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 18px 0 10px;
-    }
-
-    .shortsLogo {
-      width: 22px; height: 22px;
-      flex: 0 0 auto;
-    }
-    .shortsTitle {
-      font-weight: 750;
-      font-size: 18px;
-    }
-
-    .shortsGrid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* mobile: 2 columns */
-      gap: 10px;
-    }
-
-    /* 3 rows on mobile => 6 cards (we’ll provide 6) */
-    .shortCard {
-      border-radius: 14px;
-      overflow: hidden;
-      position: relative;
-      aspect-ratio: 9 / 16;
-      background:
-        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)),
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 45%),
-        radial-gradient(circle at 70% 70%, rgba(255,0,0,.12), transparent 55%);
-    }
-
-    .shortLabel {
-      position: absolute;
-      left: 10px;
-      bottom: 10px;
-      right: 10px;
-      color: #fff;
-      font-weight: 650;
-      font-size: 13px;
-      text-shadow: 0 1px 6px rgba(0,0,0,.35);
-      line-height: 1.2;
-    }
-
-    .shortViews {
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      color: rgba(255,255,255,.92);
-      font-size: 12px;
-      background: rgba(0,0,0,.35);
-      padding: 4px 8px;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-    }
-
-    /* Desktop: 3 columns shorts */
-    @media (min-width: 820px) {
-      .shortsGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-  </style>
+  @media(min-width:820px){
+    .shortsGrid{grid-template-columns:repeat(3,1fr)}
+  }
+</style>
 </head>
 
 <body>
-  <div class="top">
-    <div class="topRow">
-      <div class="brand" aria-label="YouTube">
-        <img src="youtube-logo.png" alt="YouTube" />
-      </div>
 
-      <div class="searchWrap">
-        <div class="searchBar">
-          <svg class="searchIcon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
-          </svg>
-          <input id="q" type="text" placeholder="Search YouTube" autocomplete="off" />
-        </div>
-
-        <!-- Suggestions -->
-        <div id="suggestBox" class="suggestBox" role="listbox" aria-label="Search suggestions"></div>
-      </div>
-
-      <div class="rightIcon" title="Search">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-          <path fill="currentColor" d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
-        </svg>
-      </div>
+<div class="top">
+  <div class="topRow">
+    <div class="brand">
+      <!-- your repo file -->
+      <img src="youtube-logo.png" alt="YouTube">
     </div>
 
-    <!-- Menu chips below search bar -->
-    <div class="chipsRow" role="navigation" aria-label="Categories">
-      <div class="chip active" data-chip="All">All</div>
-      <div class="chip" data-chip="Inventions">Inventions</div>
-      <div class="chip" data-chip="Music">Music</div>
-      <div class="chip" data-chip="Eggs">Eggs</div>
-      <div class="chip" data-chip="Cooking">Cooking</div>
-      <div class="chip" data-chip="Travel">Travel</div>
-      <div class="chip" data-chip="Tech">Tech</div>
-      <div class="chip" data-chip="DIY">DIY</div>
+    <div class="searchWrap">
+      <div class="searchBar">
+        <input id="q" type="text" placeholder="Search YouTube" autocomplete="off">
+      </div>
     </div>
   </div>
 
-  <main class="page">
-    <!-- 1 landscape video first -->
-    <section class="card">
-      <div class="thumb16x9">
-        <div class="duration">3:13</div>
-      </div>
+  <div class="chipsRow">
+    <div class="chip active">All</div>
+    <div class="chip">Inventions</div>
+    <div class="chip">Music</div>
+    <div class="chip">Eggs</div>
+    <div class="chip">Cooking</div>
+  </div>
+</div>
 
-      <div class="meta">
-        <div class="avatar" aria-hidden="true"></div>
-        <div>
-          <p class="titleLine">This is tastier and easier than pizza! A quick recipe in 5 minutes</p>
-          <div class="subLine">Leicht & lecker • 552K views • 2 months ago</div>
-        </div>
-      </div>
-    </section>
+<main class="page">
 
-    <!-- Shorts -->
-    <div class="shortsHeader">
-      <!-- red logo before Shorts -->
-      <svg class="shortsLogo" viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="var(--ytRed)" d="M10.5 2.2c1-.6 2.2-.1 2.7 1l.7 1.6 1.8-.5c1.2-.3 2.4.4 2.7 1.6.3 1.1-.3 2.3-1.4 2.7l-1.7.7 1 1.6c.7 1.1.4 2.5-.7 3.1l-1.5.9 1.5.9c1.1.6 1.4 2 .7 3.1-.6 1-1.9 1.4-3 1l-1.7-.7-.7 1.6c-.5 1.1-1.7 1.6-2.7 1-1.1-.6-1.5-1.9-.9-3l.7-1.7-1.7-.6c-1.2-.4-1.8-1.6-1.4-2.8.3-1.1 1.5-1.8 2.7-1.5l1.8.5-.7-1.7c-.5-1.1-.1-2.4 1-3z"/>
-      </svg>
-      <div class="shortsTitle">Shorts</div>
+  <!-- Main landscape thumbnail -->
+  <div class="mainThumb">
+    <!-- Online thumbnail (safe topic: food) -->
+    <img
+      src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1400&q=70"
+      alt="Main video"
+      referrerpolicy="no-referrer"
+    />
+    <div class="duration">3:13</div>
+  </div>
+
+  <div class="meta">
+    <div class="avatar"></div>
+    <div>
+      <div class="title">This is tastier and easier than pizza! A quick recipe in 5 minutes</div>
+      <div class="sub">Leicht & lecker · 552K views · 2 months ago</div>
     </div>
+  </div>
 
-    <!-- 3 rows on mobile: 6 shorts cards (2 columns x 3 rows) -->
-    <section class="shortsGrid" aria-label="Shorts videos">
-      <div class="shortCard">
-        <div class="shortViews">1.2M</div>
-        <div class="shortLabel">5-minute breakfast ideas</div>
-      </div>
-      <div class="shortCard" style="background:
-        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)),
-        radial-gradient(circle at 25% 30%, rgba(0,150,255,.25), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(255,255,255,.14), transparent 60%);">
-        <div class="shortViews">980K</div>
-        <div class="shortLabel">Phone camera settings you should try</div>
-      </div>
+  <!-- Shorts -->
+  <div class="shortsHeader">
+    <span class="red">▶</span> Shorts
+  </div>
 
-      <div class="shortCard" style="background:
-        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)),
-        radial-gradient(circle at 20% 25%, rgba(0,255,180,.18), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(255,0,0,.10), transparent 60%);">
-        <div class="shortViews">640K</div>
-        <div class="shortLabel">Simple desk setup upgrade</div>
-      </div>
-      <div class="shortCard" style="background:
-        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)),
-        radial-gradient(circle at 30% 30%, rgba(255,200,0,.20), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(255,255,255,.12), transparent 60%);">
-        <div class="shortViews">2.1M</div>
-        <div class="shortLabel">Street food you must try</div>
-      </div>
+  <div class="shortsGrid">
+    <!-- Online “shorts” thumbnails (safe topics: travel/food/tech/lifestyle) -->
+    <div class="short">
+      <img src="https://images.unsplash.com/photo-1520975693411-b4c6a4a6c493?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
+      <div class="views">1.2M</div>
+    </div>
+    <div class="short">
+      <img src="https://images.unsplash.com/photo-1520975958221-63233c33ad5b?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
+      <div class="views">980K</div>
+    </div>
+    <div class="short">
+      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
+      <div class="views">640K</div>
+    </div>
+    <div class="short">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
+      <div class="views">2.1M</div>
+    </div>
+    <div class="short">
+      <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
+      <div class="views">410K</div>
+    </div>
+    <div class="short">
+      <img src="https://images.unsplash.com/photo-1520975591871-03b1b7d5b4d2?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
+      <div class="views">770K</div>
+    </div>
+  </div>
 
-      <div class="shortCard" style="background:
-        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)),
-        radial-gradient(circle at 25% 25%, rgba(180,0,255,.18), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(255,255,255,.12), transparent 60%);">
-        <div class="shortViews">410K</div>
-        <div class="shortLabel">Tiny travel hacks that work</div>
-      </div>
-      <div class="shortCard" style="background:
-        linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)),
-        radial-gradient(circle at 25% 25%, rgba(255,80,0,.18), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(255,255,255,.12), transparent 60%);">
-        <div class="shortViews">770K</div>
-        <div class="shortLabel">Quick DIY home fix</div>
-      </div>
-    </section>
-  </main>
+</main>
 
-  <script>
-    // ===== Chips active state =====
-    document.querySelectorAll(".chip").forEach(chip => {
-      chip.addEventListener("click", () => {
-        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-      });
-    });
-
-    // ===== Suggestions (only show when typing starts) =====
-    const input = document.getElementById("q");
-    const box = document.getElementById("suggestBox");
-
-    // Local suggestions list (safe, non-magic)
-    const SUGGESTIONS = [
-      "easy breakfast ideas",
-      "best phone camera settings",
-      "quick pasta recipe",
-      "uae travel places",
-      "how to improve wifi speed",
-      "minimal desk setup",
-      "simple home workout",
-      "budget meal prep",
-      "photo editing tips"
-    ];
-
-    function renderSuggestions(query) {
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-      }
-
-      // Filter contains + startsWith preference
-      const matches = SUGGESTIONS
-        .filter(s => s.toLowerCase().includes(q))
-        .sort((a,b) => (b.toLowerCase().startsWith(q) - a.toLowerCase().startsWith(q)))
-        .slice(0, 6);
-
-      if (matches.length === 0) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-      }
-
-      box.innerHTML = matches.map(text => `
-        <div class="suggestItem" role="option" data-value="${text.replace(/"/g, "&quot;")}">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
-          </svg>
-          <span>${text}</span>
-        </div>
-      `).join("");
-
-      box.style.display = "block";
+<script>
+  // Optional: press Enter to search YouTube
+  document.getElementById("q").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const q = e.target.value.trim();
+      if (!q) return;
+      window.location.href = "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
     }
+  });
+</script>
 
-    input.addEventListener("input", () => renderSuggestions(input.value));
-
-    box.addEventListener("click", (e) => {
-      const item = e.target.closest(".suggestItem");
-      if (!item) return;
-      input.value = item.dataset.value;
-      box.style.display = "none";
-      box.innerHTML = "";
-      input.focus();
-    });
-
-    // Hide suggestions if you tap outside
-    document.addEventListener("click", (e) => {
-      const within = e.target.closest(".searchWrap");
-      if (!within) {
-        box.style.display = "none";
-      }
-    });
-  </script>
 </body>
 </html>
