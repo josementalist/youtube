@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Search</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #0f0f10;
+      color: #fff;
+    }
+
+    .wrap {
+      width: min(900px, 92vw);
+      text-align: center;
+      padding: 28px 0 48px;
+    }
+
+    .logo {
+      width: 140px;
+      max-width: 55vw;
+      margin-bottom: 18px;
+      user-select: none;
+    }
+
+    /* Search container */
+    .suggest {
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff;
+      color: #111;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      opacity: .55;
+      flex: 0 0 auto;
+    }
+
+    input {
+      border: 0;
+      outline: none;
+      width: 100%;
+      font-size: 18px;
+      padding: 6px 0;
+      background: transparent;
+    }
+
+    /* Suggestions dropdown */
+    .suggest-list {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 8px);
+      background: #fff;
+      color: #111;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      overflow: hidden;
+      display: none;
+      z-index: 50;
+    }
+
+    .suggest-item {
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 15px;
+      cursor: pointer;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      user-select: none;
+    }
+
+    .suggest-item:first-child { border-top: 0; }
+    .suggest-item:hover { background: #f3f4f6; }
+    .suggest-item.active { background: #eef2ff; }
+
+    .suggest-muted {
+      color: #666;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      background: #fafafa;
+      text-align: left;
+    }
+
+    /* Thumbnails grid */
+    .thumbs {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: #181818;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    }
+
+    .card img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    .card .title {
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #e6e6e6;
+      text-align: left;
+      line-height: 1.25;
+    }
+
+    .foot {
+      margin-top: 22px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <!-- Replace with your own logo file in repo root -->
+    <img src="youtube-logo.png" alt="Video Search" class="logo" />
+
+    <form id="searchForm" autocomplete="off">
+      <div class="suggest">
+        <div class="bar">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor"
+              d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
+          </svg>
+          <input id="query" type="text" placeholder="Search videos…" required />
+        </div>
+
+        <div id="suggestList" class="suggest-list"></div>
+      </div>
+    </form>
+
+    <!-- Visual thumbnails (for vibe/credibility) -->
+    <section class="thumbs" aria-label="Trending videos">
+      <div class="card">
+        <img src="https://picsum.photos/640/360?random=11" alt="Trending thumbnail 1">
+        <div class="title">Top 10 unbelievable moments</div>
+      </div>
+      <div class="card">
+        <img src="https://picsum.photos/640/360?random=12" alt="Trending thumbnail 2">
+        <div class="title">A story nobody expected…</div>
+      </div>
+      <div class="card">
+        <img src="https://picsum.photos/640/360?random=13" alt="Trending thumbnail 3">
+        <div class="title">Mindset shift in 5 minutes</div>
+      </div>
+      <div class="card">
+        <img src="https://picsum.photos/640/360?random=14" alt="Trending thumbnail 4">
+        <div class="title">Hidden psychology tricks</div>
+      </div>
+    </section>
+
+    <div class="foot">Opens results on YouTube</div>
+  </main>
+
+  <script>
+    // --- Suggestions (edit to match your show vibe) ---
+    const BASE_SUGGESTIONS = [
+      "best motivational speech",
+      "hidden psychology tricks",
+      "mind reading demonstration",
+      "how to improve memory",
+      "most relaxing music",
+      "kerala travel vlog",
+      "top 10 unbelievable moments",
+      "amazing magic trick tutorial",
+      "how to build confidence",
+      "public speaking tips",
+      "incredible talent show",
+      "mystery stories in malayalam"
+    ];
+
+    const form = document.getElementById("searchForm");
+    const qEl = document.getElementById("query");
+    const suggestList = document.getElementById("suggestList");
+
+    let activeIndex = -1;
+    let currentItems = [];
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    // Optional: recent searches (same device only)
+    function getRecents() {
+      try { return JSON.parse(localStorage.getItem("recent_video_searches") || "[]"); }
+      catch { return []; }
+    }
+
+    function addRecent(q) {
+      const rec = getRecents();
+      const cleaned = q.trim();
+      if (!cleaned) return;
+      const next = [cleaned, ...rec.filter(x => x !== cleaned)].slice(0, 6);
+      localStorage.setItem("recent_video_searches", JSON.stringify(next));
+    }
+
+    function showSuggestions(items, label) {
+      currentItems = items;
+      activeIndex = -1;
+
+      if (!items.length) {
+        hideSuggestions();
+        return;
+      }
+
+      const rows = items.map((s, i) =>
+        `<div class="suggest-item" data-i="${i}">${escapeHtml(s)}</div>`
+      ).join("");
+
+      const footer = label
+        ? `<div class="suggest-muted">${escapeHtml(label)}</div>`
+        : "";
+
+      suggestList.innerHTML = rows + footer;
+      suggestList.style.display = "block";
+    }
+
+    function hideSuggestions() {
+      suggestList.style.display = "none";
+      suggestList.innerHTML = "";
+      currentItems = [];
+      activeIndex = -1;
+    }
+
+    function updateSuggestions() {
+      const q = qEl.value.trim().toLowerCase();
+
+      if (!q) {
+        const rec = getRecents();
+        if (rec.length) showSuggestions(rec, "Recent searches");
+        else showSuggestions(BASE_SUGGESTIONS.slice(0, 7), "Suggestions");
+        return;
+      }
+
+      const rec = getRecents().filter(s => s.toLowerCase().includes(q));
+      const base = BASE_SUGGESTIONS.filter(s => s.toLowerCase().includes(q));
+      const merged = [...rec, ...base.filter(b => !rec.includes(b))].slice(0, 7);
+
+      showSuggestions(merged, "Suggestions");
+    }
+
+    function commitSearch(q) {
+      const cleaned = q.trim();
+      if (!cleaned) return;
+
+      addRecent(cleaned);
+
+      window.location.href =
+        "https://www.youtube.com/results?search_query=" + encodeURIComponent(cleaned);
+    }
+
+    // Click to pick suggestion
+    suggestList.addEventListener("click", (e) => {
+      const item = e.target.closest(".suggest-item");
+      if (!item) return;
+      const i = Number(item.getAttribute("data-i"));
+      const val = currentItems[i];
+      qEl.value = val;
+      hideSuggestions();
+      commitSearch(val);
+    });
+
+    // Keyboard navigation: ↑ ↓ Enter Esc
+    qEl.addEventListener("keydown", (e) => {
+      if (suggestList.style.display !== "block" || !currentItems.length) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, currentItems.length - 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+      } else if (e.key === "Enter") {
+        if (activeIndex >= 0 && currentItems[activeIndex]) {
+          e.preventDefault();
+          const picked = currentItems[activeIndex];
+          qEl.value = picked;
+          hideSuggestions();
+          commitSearch(picked);
+        }
+        return;
+      } else if (e.key === "Escape") {
+        hideSuggestions();
+        return;
+      }
+
+      [...suggestList.querySelectorAll(".suggest-item")].forEach((el, idx) => {
+        el.classList.toggle("active", idx === activeIndex);
+      });
+    });
+
+    // Update suggestions as you type
+    qEl.addEventListener("input", updateSuggestions);
+    qEl.addEventListener("focus", updateSuggestions);
+
+    // Hide dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      const inside = suggestList.contains(e.target) || qEl.contains(e.target);
+      if (!inside) hideSuggestions();
+    });
+
+    // Submit behavior
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      hideSuggestions();
+      commitSearch(qEl.value);
+    });
+
+    setTimeout(() => qEl.focus(), 200);
+  </script>
+</body>
+</html>
